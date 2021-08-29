@@ -10,6 +10,7 @@ class Customer {
     this.id = id;
     this.firstName = firstName;
     this.lastName = lastName;
+    this.fullName = this.getFullName();
     this.phone = phone;
     this.notes = notes;
   }
@@ -24,6 +25,20 @@ class Customer {
          phone, 
          notes
        FROM customers
+       ORDER BY last_name, first_name`
+    );
+    return results.rows.map(c => new Customer(c));
+  }
+
+  static async find(term) {
+    const results = await db.query(
+      `SELECT id, 
+         first_name AS "firstName",  
+         last_name AS "lastName", 
+         phone, 
+         notes
+       FROM customers
+       WHERE first_name ILIKE ${term} OR last_name ILIKE ${term}
        ORDER BY last_name, first_name`
     );
     return results.rows.map(c => new Customer(c));
@@ -51,6 +66,10 @@ class Customer {
     }
 
     return new Customer(customer);
+  }
+
+  getFullName() {
+    return this.firstName + " " + this.lastName;
   }
 
   /** get all reservations for this customer. */
